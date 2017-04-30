@@ -21,5 +21,5 @@ $ make build
 ```
 
 ## Using
-If you include the `grpcweb` package into your GopherJS file,
+If you include the `grpcwebjs` package into your GopherJS file,
 it'll automatically include the JS as well.

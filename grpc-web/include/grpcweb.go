@@ -1,1 +1,1 @@
-package grpcweb
+package grpcwebjs
