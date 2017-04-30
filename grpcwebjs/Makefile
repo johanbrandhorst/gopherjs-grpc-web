@@ -23,6 +23,7 @@ build:
 
 	java -jar node_modules/google-closure-compiler/compiler.jar \
 		--dependency_mode STRICT \
+		--use_types_for_optimization \
 		--entry_point="goog:grpc.web.AbstractClientBase" \
 		--entry_point="goog:grpc.web.GatewayClientBase" \
 		--entry_point="goog:grpc.web.ClientReadableStream" \
