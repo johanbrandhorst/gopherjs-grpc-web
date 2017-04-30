@@ -26,6 +26,9 @@ build:
 		--entry_point="goog:grpc.web.AbstractClientBase" \
 		--entry_point="goog:grpc.web.GatewayClientBase" \
 		--entry_point="goog:grpc.web.ClientReadableStream" \
+		--entry_point="goog:grpc.web.Error" \
+		--entry_point="goog:grpc.web.Status" \
+		--entry_point="goog:grpc.web.StatusCode" \
 		--js ./grpc-web/javascript/**.js \
 		--js ./grpc-web/third_party/**.js \
 		--formatting PRETTY_PRINT \
