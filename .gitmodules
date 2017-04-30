@@ -1,3 +1,4 @@
 [submodule "grpc-web/include/grpc-web"]
 	path = grpc-web/include/grpc-web
 	url = git@github.com:grpc/grpc-web.git
+	ignore = dirty
