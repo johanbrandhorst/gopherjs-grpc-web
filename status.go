@@ -20,6 +20,10 @@
 
 package grpcweb
 
+import (
+	"github.com/gopherjs/gopherjs/js"
+)
+
 // Metadata is a simple string to string map.
 type Metadata map[string]string
 
@@ -142,3 +146,8 @@ const (
 	// DataLoss indicates unrecoverable data loss or corruption.
 	DataLoss
 )
+
+// FromHTTPStatus converts a HTTP Status code to a StatusCode
+func FromHTTPStatus(HTTPCode int) StatusCode {
+	return StatusCode(js.Global.Call("grpc.web.StatusCode.fromHttpStatus", HTTPCode).Int())
+}
