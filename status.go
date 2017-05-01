@@ -22,6 +22,9 @@ package grpcweb
 
 import (
 	"github.com/gopherjs/gopherjs/js"
+
+	// Include gRPC-web JS objects
+	_ "github.com/johanbrandhorst/gopherjs-grpc-web/grpcwebjs"
 )
 
 // Metadata is a simple string to string map.
