@@ -32,9 +32,10 @@ type Metadata map[string]string
 
 // Status is a gRPC-web Status.
 type Status struct {
-	Code     StatusCode
-	Details  string
-	Metadata Metadata
+	*js.Object
+	Code     StatusCode `js:"code"`
+	Details  string     `js:"details"`
+	Metadata Metadata   `js:"metadata"`
 }
 
 // StatusCode is a gRPC-web StatusCode.
@@ -152,5 +153,5 @@ const (
 
 // FromHTTPStatus converts a HTTP Status code to a StatusCode
 func FromHTTPStatus(HTTPCode int) StatusCode {
-	return StatusCode(js.Global.Call("grpc.web.StatusCode.fromHttpStatus", HTTPCode).Int())
+	return StatusCode(js.Global.Get("grpc").Get("web").Get("StatusCode").Call("fromHttpStatus", HTTPCode).Int())
 }

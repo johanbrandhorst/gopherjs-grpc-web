@@ -20,15 +20,120 @@
 
 package grpcweb
 
-import "github.com/gopherjs/gopherjs/js"
+import (
+	"time"
 
-// ClientReadableStream encapsulates a stream call
-type ClientReadableStream struct {
+	"github.com/gopherjs/gopherjs/js"
+)
+
+// HTTPMethod is an enum for valid HTTP methods
+type HTTPMethod int
+
+func (h HTTPMethod) String() string {
+	return map[HTTPMethod]string{
+		GET:  "GET",
+		POST: "POST",
+	}[h]
+}
+
+// Define HTTP methods
+const (
+	GET = HTTPMethod(iota)
+	POST
+	// Don't really need any other methods
+)
+
+// XHRIO encapsulates the google XhrIO class.
+type XHRIO struct {
 	*js.Object
-	XHR                     *js.Object
-	XHRStream               *js.Object
-	ResponseDeserializeFunc func(ProtoMessage) []byte
-	onDataCallback          func([]byte) ProtoMessage
-	onStatusCallback        func(Status)
-	RPCStatusParseFunc      func([]byte) Status
+}
+
+// SetRequestHeader sets the header key to value
+func (x *XHRIO) SetRequestHeader(key, value string) {
+	x.Get("headers").Call("set", key, value)
+}
+
+// SetTimeout sets the header key to value
+func (x *XHRIO) SetTimeout(timeout time.Duration) {
+	x.Call("setTimeoutInterval", int(timeout.Seconds()*1000))
+}
+
+// Send sends the data to the endpoint using the method
+func (x *XHRIO) Send(endpoint string, method HTTPMethod, data []byte) {
+	x.Call("send", endpoint, method.String(), js.Global.Get("Uint8Array").New(data))
+}
+
+// Abort closes the XHR stream
+func (x *XHRIO) Abort() {
+	x.Call("abort")
+}
+
+// NewXHRIO initializes an XHRIO object.
+func NewXHRIO() *XHRIO {
+	return &XHRIO{
+		Object: js.Global.Get("goog").Get("net").Get("XhrIo").New(),
+	}
+}
+
+// EventType is a NodeReadableStream event type
+// Defined in
+// https://github.com/google/closure-library/blob/master/closure/goog/net/streams/nodereadablestream.js#L54
+type EventType string
+
+// All the defined EventTypes
+const (
+	READABLE = EventType("readable")
+	DATA     = EventType("data")
+	END      = EventType("end")
+	CLOSE    = EventType("close")
+	ERROR    = EventType("error")
+)
+
+// XHRNodeReadableStream encapsulates a google
+// XhrNodeReadableStream class
+type XHRNodeReadableStream struct {
+	*js.Object
+	xhr *XHRIO
+}
+
+// NewXHRNodeReadableStream initializes an
+// XHRNodeReadableStream object with the provided XhrIO.
+func NewXHRNodeReadableStream(xhrIO *XHRIO) *XHRNodeReadableStream {
+	xhrnrs := &XHRNodeReadableStream{
+		Object: js.Global.Get("goog").Get("net").Get("streams").Call("createXhrNodeReadableStream", xhrIO.Object),
+	}
+	xhrnrs.xhr = xhrIO
+
+	return xhrnrs
+}
+
+// On sets the callback handler for the given event
+func (x *XHRNodeReadableStream) On(event EventType, callback func(*js.Object)) {
+	x.Call("on", string(event), callback)
+}
+
+// Abort closes the stream
+func (x *XHRNodeReadableStream) Abort() {
+	x.xhr.Abort()
+}
+
+type StreamReader struct {
+	respChan <-chan []byte
+	errChan  <-chan error
+}
+
+func NewStreamReader(respChan <-chan []byte, errChan <-chan error) *StreamReader {
+	return &StreamReader{
+		respChan: respChan,
+		errChan:  errChan,
+	}
+}
+
+func (s *StreamReader) Recv() ([]byte, error) {
+	select {
+	case resp := <-s.respChan:
+		return resp, nil
+	case err := <-s.errChan:
+		return nil, err
+	}
 }

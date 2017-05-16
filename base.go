@@ -21,14 +21,22 @@
 package grpcweb
 
 // ProtoMessage must be implemented by all generated proto structs
-type ProtoMessage interface{}
-
-// MethodInfo describes a method
-type MethodInfo struct {
-	ResponseType            ProtoMessage
-	RequestSerializeFunc    func(ProtoMessage) []byte
-	ResponseDeserializeFunc func([]byte) ProtoMessage
+type ProtoMessage interface {
+	Serialize() ([]byte, error)
+	Deserialize([]byte) error
 }
 
 // ResponseCallback is called on the response from a method
-type ResponseCallback func(err Error, Response ProtoMessage)
+type ResponseCallback func(status *Status, resp []byte)
+
+// CallOption can be used to configure a call
+type CallOption func(*XHRNodeReadableStream)
+
+// WithMetadata adds the metadata as headers to the request
+func WithMetadata(m Metadata) CallOption {
+	return func(x *XHRNodeReadableStream) {
+		for k, v := range m {
+			x.xhr.SetRequestHeader(k, v)
+		}
+	}
+}

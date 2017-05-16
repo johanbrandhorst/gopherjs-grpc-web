@@ -20,8 +20,20 @@
 
 package grpcweb
 
+import (
+	"github.com/gopherjs/gopherjs/js"
+)
+
 // Error is a gRPC-web Error
 type Error struct {
-	Code    StatusCode
-	Message string
+	*js.Object
+	Code    StatusCode `js:"code"`
+	Message string     `js:"message"`
 }
+
+func (e *Error) Error() string {
+	return "Error code: " + string(e.Code) + `, "` + e.Message + `"`
+}
+
+// EOF is sent when a streaming request is finished
+var EOF = &Error{Code: Ok, Message: "EOF"}
