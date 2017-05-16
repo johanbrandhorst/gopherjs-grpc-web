@@ -35,7 +35,7 @@ build:
 		--formatting PRETTY_PRINT \
 		--js_output_file grpc-web.inc.js
 
-	echo -e "\n$global.grpc = grpc\n$global.jspb = jspb\n$global.goog = goog\n" >> grpc-web.inc.js
+	echo -e "\n$$global.grpc = grpc\n$$global.jspb = jspb\n$$global.goog = goog\n" >> grpc-web.inc.js
 
 clean:
 	rm -r ./grpc-web/javascript/proto
